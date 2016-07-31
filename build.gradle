@@ -1,0 +1,93 @@
+// Gradle manifest info gleaned from https://github.com/diffplug/osgiX
+
+plugins {
+    id 'java'
+    id 'maven'
+    id 'signing'
+}
+
+signing {
+    sign configurations.archives
+}
+
+group = "no.tornado"
+version = "8.0"
+
+jar {
+	manifest.attributes(
+		'Export-Package': PKG,
+		'Fragment-Host': 'system.bundle; extension:=framework',
+		'Bundle-ManifestVersion': '2',
+		'Bundle-Name': NAME,
+		'Bundle-License': 'The Apache License, Version 2.0',
+		'Bundle-SymbolicName': project.name,
+		'Bundle-Version': version,
+	)
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allJava
+}
+
+def makeLink = { url, text -> "<a href=\"${url}\" style=\"text-transform: none;\">${text}</a>" }
+def javadocInfo = '<h2>' + makeLink("https://${VCS_URL}", "${group}:${name}:${version}") +
+' by ' + makeLink('http://www.syse.no', 'SYSE') + '</h2>'
+javadoc {
+	options.addStringOption('Xdoclint:none', '-quiet')
+	options.header javadocInfo
+	options.footer javadocInfo
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name NAME
+                packaging 'jar'
+                description NAME
+                url 'https://github.com/edvin/javafx-osgi'
+
+                scm {
+                    connection 'scm:svn:https://github.com/edvin/javafx-osgi'
+                    developerConnection 'scm:svn:https://github.com/edvin/javafx-osgi'
+                    url 'https://github.com/edvin/javafx-osgi'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'edvin'
+                        name 'Edvin Syse'
+                        email 'es@syse.no'
+                    }
+                }
+            }
+        }
+    }
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
