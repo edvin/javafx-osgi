@@ -6,4 +6,4 @@
 JavaFX classes are not supplied to OSGi bundles by default. This project
 creates an extension bundle to provide those missing classes.
 
-Put [javafx-osgi-8-0.jar](http://repo1.maven.org/maven2/no/tornado/javafx-osgi/8.0/javafx-osgi-8.0.jar) into your OSGi runtime's bundle directory and you're good to go!
+Put [javafx-osgi-8.0.3.jar](http://repo1.maven.org/maven2/no/tornado/javafx-osgi/8.0.3/javafx-osgi-8.0.3.jar) into your OSGi runtime's bundle directory and you're good to go!
